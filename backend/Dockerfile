@@ -16,11 +16,8 @@ WORKDIR /app
 # Copy the built jar
 COPY --from=builder /app/target/resume-analyzer-1.0.0.jar app.jar
 
-# Copy frontend build (will be built in frontend stage)
-COPY --from=frontend /app/build /app/static
-
 # Expose port
-EXPOSE 8080
+EXPOSE 8081
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
