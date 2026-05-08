@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { FiUser, FiCheckSquare, FiTrendingUp } from 'react-icons/fi';
 
 const ResultCard = ({ analysis }) => {
   const [activeTab, setActiveTab] = useState('review');
@@ -12,9 +13,9 @@ const ResultCard = ({ analysis }) => {
   const hasAiContent = aiReview || atsAnalysis || careerAdvice;
 
   const tabs = [
-    { id: 'review', label: '🤖 AI Review', content: aiReview },
-    { id: 'ats', label: '📋 ATS Analysis', content: atsAnalysis },
-    { id: 'career', label: '🚀 Career Advice', content: careerAdvice },
+    { id: 'review', label: 'AI Review', icon: <FiUser />, content: aiReview },
+    { id: 'ats', label: 'ATS Analysis', icon: <FiCheckSquare />, content: atsAnalysis },
+    { id: 'career', label: 'Career Advice', icon: <FiTrendingUp />, content: careerAdvice },
   ].filter(tab => tab.content);
 
   return (

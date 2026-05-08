@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { FiUpload, FiFile, FiLoader, FiAlertCircle, FiCpu, FiUser, FiTrendingUp, FiCheckSquare, FiStar } from 'react-icons/fi';
 import { uploadResume } from '../services/api';
 
 const UploadForm = ({ onAnalysisComplete }) => {
@@ -10,13 +11,13 @@ const UploadForm = ({ onAnalysisComplete }) => {
   const fileInputRef = useRef(null);
 
   const progressSteps = [
-    { text: 'Uploading resume...', icon: '📤' },
-    { text: 'Extracting text content...', icon: '📄' },
-    { text: 'Analyzing skills & experience...', icon: '🔍' },
-    { text: 'Generating AI insights with Gemini...', icon: '🤖' },
-    { text: 'Running ATS compatibility check...', icon: '📋' },
-    { text: 'Preparing career recommendations...', icon: '🚀' },
-    { text: 'Finalizing results...', icon: '✨' }
+    { text: 'Uploading resume...', icon: <FiUpload /> },
+    { text: 'Extracting text content...', icon: <FiFile /> },
+    { text: 'Analyzing skills & experience...', icon: <FiCpu /> },
+    { text: 'Generating AI insights...', icon: <FiUser /> },
+    { text: 'Running ATS compatibility check...', icon: <FiCheckSquare /> },
+    { text: 'Preparing career recommendations...', icon: <FiTrendingUp /> },
+    { text: 'Finalizing results...', icon: <FiStar /> }
   ];
 
   useEffect(() => {
@@ -86,10 +87,10 @@ const UploadForm = ({ onAnalysisComplete }) => {
             className={`file-drop-zone ${file ? 'has-file' : ''}`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <span className="file-drop-icon">{file ? '✅' : '📎'}</span>
+            <span className="file-drop-icon">{file ? <FiCheckSquare /> : <FiUpload />}</span>
             {file ? (
               <div>
-                <div className="file-name">📄 {file.name}</div>
+                <div className="file-name">{file.name}</div>
                 <div className="file-drop-text" style={{ marginTop: '0.25rem' }}>
                   Click to change file
                 </div>
@@ -126,7 +127,7 @@ const UploadForm = ({ onAnalysisComplete }) => {
         </div>
 
         {/* Error */}
-        {error && <div className="error-message">⚠️ {error}</div>}
+        {error && <div className="error-message"><FiAlertCircle /> {error}</div>}
 
         {/* Submit Button */}
         <button
@@ -140,7 +141,7 @@ const UploadForm = ({ onAnalysisComplete }) => {
               Analyzing with Gemini AI...
             </>
           ) : (
-            <>🤖 Analyze Resume with AI</>
+            <><FiUser /> Analyze Resume with AI</>
           )}
         </button>
 
