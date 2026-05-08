@@ -1,0 +1,18 @@
+# Java / Maven
+backend/target/
+*.log
+
+# Node / React
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+# Environment files
+.env
+.env.*
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
