@@ -34,7 +34,7 @@ const UploadForm = ({ onAnalysisComplete }) => {
     } else {
       setCurrentStep(0);
     }
-  }, [loading]);
+  }, [loading, progressSteps.length]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
