@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiUpload, FiFile, FiLoader, FiAlertCircle, FiCpu, FiUser, FiTrendingUp, FiCheckSquare, FiStar } from 'react-icons/fi';
+import { FiUpload, FiFile, FiAlertCircle, FiCpu, FiUser, FiTrendingUp, FiCheckSquare, FiStar } from 'react-icons/fi';
 import { uploadResume } from '../services/api';
 
 const UploadForm = ({ onAnalysisComplete }) => {
