@@ -4,11 +4,7 @@
 ![Spring Boot](https://img.shields.io/badge/Backend-SpringBoot-6DB33F?logo=springboot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Containerized-Docker-2496ED?logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
-![Jenkins](https://img.shields.io/badge/CI/CD-Jenkins-D24939?logo=jenkins&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/Automation-GitHubActions-2088FF?logo=githubactions&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 AI-powered resume analysis platform designed to evaluate resumes for ATS compatibility, skill relevance, and career insights using modern full-stack and DevOps technologies.
