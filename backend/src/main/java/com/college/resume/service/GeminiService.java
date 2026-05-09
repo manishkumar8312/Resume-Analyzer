@@ -119,59 +119,65 @@ public class GeminiService {
     }
 
     private String buildComprehensivePrompt(String resumeText, String jobDescription) {
-        return "You are a world-class resume analyzer and career coach with deep expertise in ATS systems and recruitment."
-                +
-                "\n\nTASK: Analyze the following resume comprehensively." +
-                "\n\nRESUME TEXT:\n" + resumeText +
+        return "Analyze this resume and provide professional feedback in exactly this format:" +
+                "\n\nRESUME:\n" + resumeText +
                 (StringUtils.hasText(jobDescription) ? "\n\nJOB DESCRIPTION:\n" + jobDescription : "") +
-                "\n\nProvide a detailed professional review in Markdown format with these EXACT sections:" +
                 "\n\n## Executive Summary" +
-                "\nBrief 2-3 sentence overview of the resume's overall quality and marketability." +
+                "\n[2-3 sentence overview]" +
                 "\n\n## ATS Compatibility Analysis" +
-                "\nEvaluate how well this resume will perform against Applicant Tracking Systems. Include:" +
-                "\n- Keyword optimization" +
-                "\n- Format compatibility" +
-                "\n- Section clarity" +
-                "\n- Potential ATS blockers" +
-                "\n\n## Key Strengths" +
-                "\nList 3-5 specific strengths with examples from the resume." +
+                "\nOverall Score: [0-100]" +
+                "\nKeyword Optimization: [Good/Fair/Poor]" +
+                "\nFormat Issues: [List specific issues]" +
+                "\n\n## Strengths" +
+                "\n[3-5 strengths with examples]" +
                 "\n\n## Areas for Improvement" +
-                "\nIdentify 3-5 specific weaknesses with actionable suggestions." +
+                "\n[3-5 weaknesses with actionable suggestions]" +
                 "\n\n## Actionable Recommendations" +
-                "\nProvide 5-7 concrete, prioritized recommendations to improve the resume." +
-                "\n\n" + (StringUtils.hasText(jobDescription) ? "## Job Match Analysis" +
-                        "\nCompare the resume against the job description and provide:" +
-                        "\n- Match percentage (0-100%)" +
-                        "\n- Missing key requirements" +
-                        "\n- Alignment strengths" +
-                        "\n- Specific recommendations for this role" : "")
-                +
-                "\n\nUse professional, constructive tone. Be specific and actionable.";
+                "\n[5-7 specific recommendations]" +
+                (StringUtils.hasText(jobDescription) ? "\n\n## Job Match Analysis" +
+                        "\nMatch Percentage: [0-100%]" +
+                        "\nMissing Requirements: [List]" +
+                        "\nAlignment Strengths: [List]" +
+                        "\nRole-Specific Recommendations: [List]" : "") +
+                "\n\nBe professional and concise.";
     }
 
     private String buildAtsPrompt(String resumeText, String jobDescription) {
-        return "You are an ATS (Applicant Tracking System) expert. Analyze this resume for ATS compatibility." +
+        return "Analyze this resume for ATS compatibility." +
                 "\n\nRESUME:\n" + resumeText +
                 (StringUtils.hasText(jobDescription) ? "\n\nJOB DESCRIPTION:\n" + jobDescription : "") +
-                "\n\nProvide ATS-specific analysis in Markdown format:" +
+                "\n\nProvide ATS analysis in exactly this format:" +
                 "\n\n## ATS Score (0-100)" +
-                "\n## Keyword Analysis" +
-                "\n## Format Issues" +
-                "\n## Section Optimization" +
-                "\n## ATS-Friendly Improvements" +
-                "\n## Technical Recommendations";
+                "\n### Keyword Analysis" +
+                "\n### Format Issues" +
+                "\n### Section Optimization" +
+                "\n\n## ATS-Friendly Improvements" +
+                "\n### Technical Recommendations" +
+                (StringUtils.hasText(jobDescription) ? "\n\n## Job-Specific ATS Alignment" +
+                        "\n### Target Keyword Match Rate" +
+                        "\n### Required Skills Coverage" +
+                        "\n### Experience Alignment Score" +
+                        "\n### ATS Optimization for This Role" : "") +
+                "\n\nBe concise and professional.";
     }
 
     private String buildCareerAdvicePrompt(String resumeText, String jobDescription) {
-        return "You are an experienced career coach and recruiter. Provide career advice based on this resume." +
+        return "Analyze this resume for career guidance." +
                 "\n\nRESUME:\n" + resumeText +
-                (StringUtils.hasText(jobDescription) ? "\n\nTARGET JOB:\n" + jobDescription : "") +
-                "\n\nProvide career development advice in Markdown format:" +
-                "\n\n## Career Positioning" +
-                "\n## Skill Development Priorities" +
-                "\n## Experience Gaps to Address" +
-                "\n## Career Growth Recommendations" +
-                "\n## Next Steps (6-12 months)" +
-                "\n## Market Positioning Advice";
+                (StringUtils.hasText(jobDescription) ? "\n\nTARGET ROLE:\n" + jobDescription : "") +
+                "\n\nProvide career advice in exactly this format:" +
+                "\n\n## Career Assessment" +
+                "\n### Current Position" +
+                "\n### Skill Analysis" +
+                "\n\n## Career Development Plan" +
+                "\n### Skills to Develop" +
+                "\n### Experience Gaps to Address" +
+                "\n\n## Career Recommendations" +
+                "\n### Next Steps" +
+                (StringUtils.hasText(jobDescription) ? "\n\n## Role-Specific Advice" +
+                        "\n### Target Role Alignment" +
+                        "\n### Skill Gaps for This Position" +
+                        "\n### Role-Specific Development Plan" : "") +
+                "\n\nBe professional and concise.";
     }
 }
