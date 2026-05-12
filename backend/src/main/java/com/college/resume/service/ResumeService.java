@@ -12,6 +12,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,11 +29,8 @@ public class ResumeService {
     @Autowired
     private ResumeRepository resumeRepository;
 
-    @Autowired(required = false)
-    private GeminiService geminiService;
-
-    @Autowired(required = false)
-    private OpenAIService openAIService;
+    @Autowired
+    private GroqService groqService;
 
     private static final List<String> COMMON_SKILLS = Arrays.asList(
         "Java", "Python", "JavaScript", "React", "Spring Boot", "Node.js", "SQL", "MongoDB",
@@ -62,67 +67,47 @@ public class ResumeService {
             matchPercentage
         );
 
-        // Generate AI review using Gemini (preferred) or OpenAI
-        String aiReview = null;
-        String atsAnalysis = null;
-        String careerAdvice = null;
-        
         System.out.println("Starting AI review generation...");
         
-        if (geminiService != null) {
+        if (groqService != null) {
             try {
-                System.out.println("Calling Gemini service for comprehensive analysis...");
-                aiReview = geminiService.analyzeResume(text, jobDescription);
+                // Run AI analysis concurrently to save time
+                CompletableFuture<String> reviewFuture = CompletableFuture.supplyAsync(() -> 
+                    groqService.analyzeResume(text, jobDescription));
+                
+                CompletableFuture<String> atsFuture = CompletableFuture.supplyAsync(() -> 
+                    groqService.getAtsAnalysis(text, jobDescription));
+                
+                CompletableFuture<String> careerFuture = CompletableFuture.supplyAsync(() -> 
+                    groqService.getCareerAdvice(text, jobDescription));
+
+                // Wait for all to complete with a timeout (e.g., 30 seconds)
+                CompletableFuture.allOf(reviewFuture, atsFuture, careerFuture)
+                    .orTimeout(30, TimeUnit.SECONDS)
+                    .join();
+
+                String aiReview = reviewFuture.get();
+                String atsAnalysis = atsFuture.get();
+                String careerAdvice = careerFuture.get();
+
                 if (aiReview != null) {
                     resume.setAiReview(aiReview);
-                    System.out.println("AI review content set (length: " + aiReview.length() + ")");
-                } else {
-                    System.err.println("Gemini analysis returned null");
                 }
-
-                // Small delay to prevent rate limiting
-                Thread.sleep(1000);
-
-                System.out.println("Calling Gemini service for ATS analysis...");
-                atsAnalysis = geminiService.getAtsAnalysis(text, jobDescription);
                 if (atsAnalysis != null) {
                     resume.setAtsAnalysis(atsAnalysis);
-                    System.out.println("ATS analysis set successfully");
                 }
-
-                // Small delay to prevent rate limiting
-                Thread.sleep(1000);
-
-                System.out.println("Calling Gemini service for career advice...");
-                careerAdvice = geminiService.getCareerAdvice(text, jobDescription);
                 if (careerAdvice != null) {
                     resume.setCareerAdvice(careerAdvice);
-                    System.out.println("Career advice set successfully");
                 }
-            } catch (Exception e) {
-                System.err.println("Error during Gemini analysis pipeline: " + e.getMessage());
-            }
-        } else {
-            System.err.println("Gemini service is null!");
-        }
 
-        if (aiReview == null && openAIService != null) {
-            try {
-                System.out.println("Fallback to OpenAI service...");
-                aiReview = openAIService.reviewResume(text, jobDescription);
-                if (aiReview != null && !aiReview.contains("not available") && !aiReview.contains("Error")) {
-                    resume.setAiReview(aiReview);
-                    System.out.println("OpenAI review set successfully");
-                }
+                System.out.println("Concurrent AI analysis completed successfully");
+
             } catch (Exception e) {
-                System.err.println("Error generating OpenAI review: " + e.getMessage());
+                System.err.println("Error during concurrent AI analysis: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         
-        System.out.println("Final AI review status - aiReview: " + (aiReview != null ? "present" : "null") + 
-                          ", atsAnalysis: " + (atsAnalysis != null ? "present" : "null") + 
-                          ", careerAdvice: " + (careerAdvice != null ? "present" : "null"));
-
         return resumeRepository.save(resume);
     }
 

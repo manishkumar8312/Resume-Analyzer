@@ -68,7 +68,7 @@ The project demonstrates practical implementation of:
 
 ### AI Integration
 - Google Gemini API
-- OpenRouter API
+- Groq API (for AI-powered analysis)
 
 ### DevOps & Infrastructure
 - Docker

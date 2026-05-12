@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiUpload, FiFile, FiAlertCircle, FiCpu, FiUser, FiTrendingUp, FiCheckSquare, FiStar } from 'react-icons/fi';
 import { uploadResume } from '../services/api';
 
-const UploadForm = ({ onAnalysisComplete }) => {
+const UploadForm = ({ onAnalysisComplete, onFileSelect }) => {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,10 +41,12 @@ const UploadForm = ({ onAnalysisComplete }) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile);
+      if (onFileSelect) onFileSelect(selectedFile);
       setError('');
     } else {
       setError('Please select a valid PDF file');
       setFile(null);
+      if (onFileSelect) onFileSelect(null);
     }
   };
 
