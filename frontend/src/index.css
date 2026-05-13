@@ -57,7 +57,7 @@ body {
   width: 200%;
   height: 200%;
   background: radial-gradient(circle at 30% 50%, var(--glow-blue) 0%, transparent 50%),
-              radial-gradient(circle at 70% 50%, var(--glow-purple) 0%, transparent 50%);
+    radial-gradient(circle at 70% 50%, var(--glow-purple) 0%, transparent 50%);
   animation: headerGlow 8s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -393,6 +393,41 @@ body {
   background: var(--accent-emerald);
 }
 
+.loading-status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(79, 143, 255, 0.1);
+  border: 1px solid rgba(79, 143, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  color: var(--accent-cyan);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 auto 2rem;
+  width: max-content;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.progress-container.immersive {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(79, 143, 255, 0.2);
+  padding: 2rem;
+  margin-top: 0;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4);
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 /* ═══════════════════════════════════════════════
    RESULTS PAGE
    ═══════════════════════════════════════════════ */
@@ -445,8 +480,15 @@ body {
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .animate-slide-in {
@@ -457,7 +499,7 @@ body {
   .home-container.has-preview {
     flex-direction: column;
   }
-  
+
   .resume-sidebar {
     width: 100%;
     height: 600px;
@@ -770,7 +812,8 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.markdown-content ul, .markdown-content ol {
+.markdown-content ul,
+.markdown-content ol {
   padding-left: 1.5rem;
   margin-bottom: 0.75rem;
 }
@@ -867,34 +910,79 @@ body {
    ANIMATIONS
    ═══════════════════════════════════════════════ */
 @keyframes headerGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(5deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(5deg);
+  }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.3); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-fade-in {
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-.animate-fade-in-delay-1 { animation-delay: 0.1s; opacity: 0; }
-.animate-fade-in-delay-2 { animation-delay: 0.2s; opacity: 0; }
-.animate-fade-in-delay-3 { animation-delay: 0.3s; opacity: 0; }
-.animate-fade-in-delay-4 { animation-delay: 0.4s; opacity: 0; }
-.animate-fade-in-delay-5 { animation-delay: 0.5s; opacity: 0; }
+.animate-fade-in-delay-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-5 {
+  animation-delay: 0.5s;
+  opacity: 0;
+}
 
 .spinner {
   width: 20px;
@@ -906,7 +994,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -916,20 +1006,20 @@ body {
   .features-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .score-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .ai-tabs {
     flex-direction: column;
   }
-  
+
   .upload-container {
     margin: 0 1rem;
     padding: 1.5rem;
   }
-  
+
   .header-title {
     font-size: 1.5rem;
   }

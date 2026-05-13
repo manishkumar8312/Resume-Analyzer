@@ -34,31 +34,34 @@ public class GroqService {
     public void init() {
         System.out.println("=== GroqService initialized ===");
         this.apiKey = environment.getProperty("groq.api.key");
-        System.out.println("API Key present: " + (apiKey != null && !apiKey.isEmpty()));
-        System.out.println("API Key length: " + (apiKey != null ? apiKey.length() : 0));
-        if (apiKey != null && !apiKey.isEmpty()) {
-            System.out.println("API Key first 10 chars: " + apiKey.substring(0, Math.min(10, apiKey.length())));
-            // Test API key format - should start with "gsk_"
-            if (apiKey.startsWith("gsk_")) {
-                System.out.println("API Key format: Correct");
-            } else {
-                System.out.println("API Key format: Incorrect - should start with 'gsk_'");
-            }
+        System.out.println("DEBUG: API Key present: " + (apiKey != null && !apiKey.isEmpty()));
+        if (apiKey != null) {
+            System.out.println("DEBUG: API Key value: " + (apiKey.length() > 5 ? apiKey.substring(0, 5) + "..." : "TOO SHORT"));
+            System.out.println("DEBUG: Is placeholder: " + apiKey.equals("${GROQ_API_KEY:}"));
         }
     }
 
     public String analyzeResume(String resumeText, String jobDescription) {
-        // Use local analysis to avoid API issues
+        System.out.println("DEBUG: Entering analyzeResume. API Key status: " + (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")));
+        if (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")) {
+            System.out.println("DEBUG: Calling Groq API...");
+            return callGroqAPI(buildComprehensivePrompt(resumeText, jobDescription));
+        }
+        System.out.println("DEBUG: Falling back to local analysis.");
         return generateLocalAnalysis(resumeText, jobDescription, "AI Review");
     }
 
     public String getAtsAnalysis(String resumeText, String jobDescription) {
-        // Use local analysis to avoid API issues
+        if (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")) {
+            return callGroqAPI(buildAtsPrompt(resumeText, jobDescription));
+        }
         return generateLocalAnalysis(resumeText, jobDescription, "ATS Analysis");
     }
 
     public String getCareerAdvice(String resumeText, String jobDescription) {
-        // Use local analysis to avoid API issues
+        if (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")) {
+            return callGroqAPI(buildCareerAdvicePrompt(resumeText, jobDescription));
+        }
         return generateLocalAnalysis(resumeText, jobDescription, "Career Advice");
     }
 
@@ -141,8 +144,8 @@ public class GroqService {
             System.out.println("Calling Groq API with prompt length: " + prompt.length());
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "llama-3.1-70b-versatile");
-            requestBody.put("max_tokens", 500);
+            requestBody.put("model", "llama-3.3-70b-versatile");
+            requestBody.put("max_tokens", 2000);
             requestBody.put("messages", List.of(
                 Map.of("role", "user", "content", prompt)
             ));
@@ -199,76 +202,75 @@ public class GroqService {
     }
 
     private String buildComprehensivePrompt(String resumeText, String jobDescription) {
-        return "Analyze this resume and provide professional feedback in exactly this format:" +
-                "\n\nRESUME:\n" + resumeText +
-                (StringUtils.hasText(jobDescription) ? "\n\nJOB DESCRIPTION:\n" + jobDescription : "") +
-                "\n\n## Executive Summary" +
-                "\n[2-3 sentence overview]" +
-                "\n\n## ATS Compatibility Analysis" +
-                "\n**Score: X/100**" +
-                "\n- Keyword matching: [details]" +
-                "\n- Format optimization: [details]" +
-                "\n- Missing elements: [details]" +
-                "\n\n## Strengths" +
-                "\n- [Strength 1 with example]" +
-                "\n- [Strength 2 with example]" +
-                "\n- [Strength 3 with example]" +
-                "\n\n## Areas for Improvement" +
-                "\n- [Improvement area 1 with specific suggestion]" +
-                "\n- [Improvement area 2 with specific suggestion]" +
-                "\n- [Improvement area 3 with specific suggestion]" +
-                "\n\n## Recommendations" +
-                "\n1. [Specific recommendation 1]" +
-                "\n2. [Specific recommendation 2]" +
-                "\n3. [Specific recommendation 3]";
+        boolean hasJD = StringUtils.hasText(jobDescription);
+        
+        return "As an expert Senior Technical Recruiter and Career Coach, perform a deep, multi-dimensional analysis of the following resume. " +
+                "Provide highly detailed, professional, and actionable feedback.\n\n" +
+                "RESUME CONTENT:\n" + resumeText + "\n\n" +
+                (hasJD ? "TARGET JOB DESCRIPTION:\n" + jobDescription + "\n\n" : "") +
+                "Please structure your response with the following sections:\n\n" +
+                "## Executive Summary\n" +
+                "Provide a sophisticated 4-5 sentence professional overview of the candidate's profile, unique value proposition, and overall marketability.\n\n" +
+                (hasJD ? "## Job Description Match Analysis\n" +
+                "- **Match Score:** [Provide a percentage score X/100]\n" +
+                "- **Alignment Summary:** How well does this resume align with the specific requirements of the target role?\n" +
+                "- **Critical Gaps:** Identify the top 3-5 specific skills, technologies, or experiences missing that are explicitly mentioned in the JD.\n" +
+                "- **Tailoring Advice:** Give specific advice on which sections to emphasize to better fit this role.\n\n" : "") +
+                "## Deep Technical Assessment\n" +
+                "- Evaluate the depth and breadth of the technical stack mentioned.\n" +
+                "- Analyze the complexity of the projects described.\n" +
+                "- Identify specific industry-standard patterns or technologies that are present or conspicuously missing.\n\n" +
+                "## Strengths (Highly Detailed)\n" +
+                "- Provide at least 3-4 significant strengths, each supported by specific evidence found in the resume.\n" +
+                "- Explain *why* these strengths are valuable in the current market.\n\n" +
+                "## Areas for Improvement & Gap Analysis\n" +
+                "- Identify specific weaknesses in content, phrasing, or technical focus.\n" +
+                "- Point out missing keywords or certifications that would elevate the profile.\n" +
+                "- Critically evaluate the 'Impact' - does the resume focus on responsibilities or results?\n\n" +
+                "## Strategic Recommendations\n" +
+                "1. Provide a specific recommendation for rewriting bullet points using the Google XYZ formula.\n" +
+                "2. Suggest 2-3 specific certifications or courses based on the current profile.\n" +
+                "3. Offer advice on how to better highlight leadership or soft skills.\n" +
+                (hasJD ? "4. Provide 3 specific bullet point rewrites tailored directly to the target JD." : "4. Suggest how to better structure the project section for high impact.");
     }
 
     private String buildAtsPrompt(String resumeText, String jobDescription) {
-        return "Analyze this resume against ATS (Applicant Tracking System) requirements and provide detailed scoring:" +
-                "\n\nRESUME:\n" + resumeText +
-                (StringUtils.hasText(jobDescription) ? "\n\nJOB DESCRIPTION:\n" + jobDescription : "") +
-                "\n\n## ATS Compatibility Score: X/100" +
-                "\n\n### Keyword Analysis" +
-                "\n- Technical skills found: [list]" +
-                "\n- Soft skills found: [list]" +
-                "\n- Industry keywords: [list]" +
-                "\n- Missing keywords: [list]" +
-                "\n\n### Format Analysis" +
-                "\n- Contact information: [status]" +
-                "\n- Section headers: [status]" +
-                "\n- Bullet points: [status]" +
-                "\n- Date formatting: [status]" +
-                "\n\n### Improvement Suggestions" +
-                "\n1. [Specific ATS optimization 1]" +
-                "\n2. [Specific ATS optimization 2]" +
-                "\n3. [Specific ATS optimization 3]";
+        return "Act as an ATS (Applicant Tracking System) optimization expert. Analyze the following resume for maximum searchability and ranking potential.\n\n" +
+                "RESUME:\n" + resumeText + "\n\n" +
+                (StringUtils.hasText(jobDescription) ? "TARGET JOB DESCRIPTION:\n" + jobDescription + "\n\n" : "") +
+                "## ATS Compatibility Score: [Provide a realistic score out of 100]\n\n" +
+                "### Detailed Keyword Optimization\n" +
+                "- **Hard Skills Found:** [List specifically]\n" +
+                "- **Missing High-Priority Keywords:** [List keywords from the JD or industry that are missing]\n" +
+                "- **Action Verb Evaluation:** Analyze the strength and variety of verbs used.\n\n" +
+                "### Parseability & Formatting Audit\n" +
+                "- Evaluate section headings for standard naming conventions.\n" +
+                "- Identify any non-standard characters, tables, or columns that might break a parser.\n" +
+                "- Check date formats and contact info structure.\n\n" +
+                "### Ranking Strategy & Quick Wins\n" +
+                "1. Identify the 'Top 5' keywords to add immediately.\n" +
+                "2. Suggest a specific re-formatting of the skills section for better indexing.\n" +
+                "3. Provide a 'Before/After' example of a poorly phrased bullet point.";
     }
 
     private String buildCareerAdvicePrompt(String resumeText, String jobDescription) {
-        return "Based on this resume, provide personalized career advice and recommendations:" +
-                "\n\nRESUME:\n" + resumeText +
-                (StringUtils.hasText(jobDescription) ? "\n\nTARGET ROLE:\n" + jobDescription : "") +
-                "\n\n## Career Path Analysis" +
-                "\n### Current Level Assessment" +
-                "\n- Experience level: [assessment]" +
-                "\n- Skill alignment: [assessment]" +
-                "\n- Market positioning: [assessment]" +
-                "\n\n## Recommended Career Paths" +
-                "\n1. [Career path 1] - [why it fits]" +
-                "\n2. [Career path 2] - [why it fits]" +
-                "\n3. [Career path 3] - [why it fits]" +
-                "\n\n## Skill Development Plan" +
-                "\n### Immediate Actions (0-3 months)" +
-                "\n- [Action 1]" +
-                "\n- [Action 2]" +
-                "\n- [Action 3]" +
-                "\n\n### Medium-term Goals (3-12 months)" +
-                "\n- [Goal 1]" +
-                "\n- [Goal 2]" +
-                "\n- [Goal 3]" +
-                "\n\n### Long-term Strategy (1+ years)" +
-                "\n- [Strategy 1]" +
-                "\n- [Strategy 2]" +
-                "\n- [Strategy 3]";
+        return "Act as an elite Career Strategy Consultant. Based on the following resume content, develop a comprehensive career growth roadmap.\n\n" +
+                "RESUME CONTENT:\n" + resumeText + "\n\n" +
+                (StringUtils.hasText(jobDescription) ? "DESIRED NEXT ROLE:\n" + jobDescription + "\n\n" : "") +
+                "## Career Path & Market Positioning\n" +
+                "- Analyze the candidate's current career trajectory.\n" +
+                "- Determine if they are positioned for 'Lateral', 'Vertical', or 'Pivotal' growth.\n" +
+                "- Assess their 'Career Narrative'—how well does the resume tell a story of growth?\n\n" +
+                "## Strategic Skill Development Roadmap\n" +
+                "### Immediate (0-6 months)\n" +
+                "- Identify 2-3 specific technical skills to acquire or deepen.\n" +
+                "- Suggest a high-impact project or certification.\n\n" +
+                "### Mid-term (6-18 months)\n" +
+                "- Recommend leadership or architectural focus areas.\n" +
+                "- Suggest networking or industry engagement strategies.\n\n" +
+                "## Interview & Narrative Strategy\n" +
+                "- Identify the most impressive 'Achievement Story' in their resume.\n" +
+                "- Provide a specific tip on how to handle potential weaknesses (e.g., gaps, short tenures) in an interview.\n" +
+                "- Suggest a 'Personal Branding' statement they can use on LinkedIn.";
     }
 }
