@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://resume-analyzer-1-4bhm.onrender.com/api/$1"
+    }
+  ]
+}
