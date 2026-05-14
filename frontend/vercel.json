@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://resume-analyzer-1-4bhm.onrender.com/api/$1"
+      "destination": "https://resume-analyzer-wxd7.onrender.com/api/$1"
     }
   ]
 }

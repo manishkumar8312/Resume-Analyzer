@@ -158,10 +158,11 @@ const UploadForm = ({ onAnalysisComplete, onFileSelect }) => {
 
         {/* Progress Steps */}
         {loading && (
-          <div className="progress-container immersive">
+          <div className="progress-container immersive glass-panel animate-border-glow animate-fade-in">
+            <div className="spotlight"></div>
             <div className="scanner-line"></div>
-            <div className="progress-title">
-              <FiCpu className="animate-spin-slow" /> AI Analysis Pipeline
+            <div className="progress-title shimmer-text" style={{ fontSize: '1rem', letterSpacing: '0.1em' }}>
+              <FiCpu className="animate-spin-slow" /> AI NEURAL ENGINE PROCESSING
             </div>
             {progressSteps.map((step, index) => {
               let stepClass = 'progress-step';
@@ -169,9 +170,14 @@ const UploadForm = ({ onAnalysisComplete, onFileSelect }) => {
               else if (index === currentStep) stepClass += ' active';
 
               return (
-                <div key={index} className={stepClass} style={{ animationDelay: `${index * 0.1}s` }}>
+                <div key={index} className={stepClass} style={{ 
+                  animationDelay: `${index * 0.1}s`,
+                  borderBottom: '1px solid rgba(255,255,255,0.02)'
+                }}>
                   <div className="progress-dot"></div>
-                  <span>{step.icon} {step.text}</span>
+                  <span className={index === currentStep ? 'shimmer-text' : ''} style={{ fontSize: '0.9rem' }}>
+                    {step.icon} {step.text}
+                  </span>
                 </div>
               );
             })}

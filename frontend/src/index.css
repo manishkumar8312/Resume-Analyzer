@@ -1055,3 +1055,17 @@ body {
   font-size: 0.85rem;
   font-weight: 400;
 }
+
+/* PREMIUM ANIMATIONS */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes scanner-move { 0% { transform: translateY(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(500%); opacity: 0; } }
+.shimmer-text { background: linear-gradient(90deg, #94a3b8 0%, #f1f5f9 50%, #94a3b8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 3s linear infinite; }
+.scanner-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent); box-shadow: 0 0 20px var(--accent-cyan); z-index: 10; animation: scanner-move 3s linear infinite; pointer-events: none; }
+.loading-orb { width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--accent-blue), transparent); filter: blur(40px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.2; animation: pulse 3s ease-in-out infinite; z-index: 0; }
+
+/* PROFESSIONAL EXECUTIVE ANIMATIONS */
+@keyframes spotlight { 0% { transform: translate(-50%, -50%) translate(-20%, -20%); } 100% { transform: translate(-50%, -50%) translate(20%, 20%); } }
+.spotlight { position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, var(--glow-blue) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; animation: spotlight 10s ease-in-out infinite alternate; }
+.glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+@keyframes border-glow { 0%, 100% { border-color: rgba(79, 143, 255, 0.2); } 50% { border-color: rgba(34, 211, 238, 0.5); } }
+.animate-border-glow { animation: border-glow 3s ease-in-out infinite; }
