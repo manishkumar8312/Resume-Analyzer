@@ -29,8 +29,15 @@ public class GroqService {
     private String apiKey;
 
     private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public GroqService() {
+        org.springframework.http.client.SimpleClientHttpRequestFactory factory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds
+        factory.setReadTimeout(20000);   // 20 seconds
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     @PostConstruct
     public void init() {
@@ -67,6 +74,58 @@ public class GroqService {
         System.out.println("DEBUG: API Key present: " + (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")));
     }
 
+    public Map<String, String> getComprehensiveAnalysis(String resumeText, String jobDescription) {
+        if (!StringUtils.hasText(apiKey) || apiKey.equals("${GROQ_API_KEY:}")) {
+            Map<String, String> localResults = new HashMap<>();
+            localResults.put("aiReview", generateLocalAnalysis(resumeText, jobDescription, "AI Review"));
+            localResults.put("atsAnalysis", generateLocalAnalysis(resumeText, jobDescription, "ATS Analysis"));
+            localResults.put("careerAdvice", generateLocalAnalysis(resumeText, jobDescription, "Career Advice"));
+            return localResults;
+        }
+
+        String combinedPrompt = "As an expert Senior Technical Recruiter, ATS Specialist, and Career Coach, perform a deep, multi-dimensional analysis of the following resume. " +
+                "You must provide three distinct sections: 1) Professional AI Review, 2) ATS Optimization Analysis, and 3) Career Growth Roadmap.\n\n" +
+                "RESUME CONTENT:\n" + resumeText + "\n\n" +
+                (StringUtils.hasText(jobDescription) ? "TARGET JOB DESCRIPTION:\n" + jobDescription + "\n\n" : "") +
+                "IMPORTANT: Format your response using these exact markers to separate the sections:\n" +
+                "[SECTION: REVIEW]\n" +
+                "[Detailed Professional Review content...]\n\n" +
+                "[SECTION: ATS]\n" +
+                "[Detailed ATS Analysis content...]\n\n" +
+                "[SECTION: CAREER]\n" +
+                "[Detailed Career Advice content...]\n\n" +
+                "In the [SECTION: REVIEW] section, include: Executive Summary, Match Analysis, Technical Assessment, Strengths, and Areas for Improvement.\n" +
+                "In the [SECTION: ATS] section, include: ATS Score (out of 100), Keyword Optimization, and Parseability Audit.\n" +
+                "In the [SECTION: CAREER] section, include: Career trajectory analysis, a Strategic Roadmap (Immediate vs. Mid-term), and Interview Strategy.\n";
+
+        System.out.println("DEBUG: Calling Groq API for comprehensive analysis...");
+        String fullResponse = callGroqAPI(combinedPrompt);
+        
+        Map<String, String> results = new HashMap<>();
+        if (fullResponse.startsWith("Error:") || fullResponse.startsWith("Unexpected")) {
+            results.put("error", fullResponse);
+            return results;
+        }
+
+        results.put("aiReview", extractSection(fullResponse, "REVIEW"));
+        results.put("atsAnalysis", extractSection(fullResponse, "ATS"));
+        results.put("careerAdvice", extractSection(fullResponse, "CAREER"));
+        
+        return results;
+    }
+
+    private String extractSection(String text, String sectionName) {
+        String marker = "[SECTION: " + sectionName + "]";
+        int start = text.indexOf(marker);
+        if (start == -1) return "";
+        
+        start += marker.length();
+        int end = text.indexOf("[SECTION:", start);
+        
+        String content = (end == -1) ? text.substring(start) : text.substring(start, end);
+        return content.trim();
+    }
+
     public String analyzeResume(String resumeText, String jobDescription) {
         System.out.println("DEBUG: Entering analyzeResume. API Key status: " + (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")));
         if (StringUtils.hasText(apiKey) && !apiKey.equals("${GROQ_API_KEY:}")) {
@@ -91,7 +150,7 @@ public class GroqService {
         return generateLocalAnalysis(resumeText, jobDescription, "Career Advice");
     }
 
-    private String generateLocalAnalysis(String resumeText, String jobDescription, String analysisType) {
+    public String generateLocalAnalysis(String resumeText, String jobDescription, String analysisType) {
         try {
             // Expanded keyword dictionaries
             String[] commonSkills = {"java", "python", "javascript", "react", "spring", "sql", "git", "docker", "aws", "nodejs", "mongodb", "postgresql", "rest api", "microservices", "hibernate", "maven", "junit", "linux", "cloud"};
@@ -193,7 +252,7 @@ public class GroqService {
             System.out.println("Calling Groq API with prompt length: " + prompt.length());
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "llama-3.3-70b-versatile");
+            requestBody.put("model", "llama-3.1-8b-instant");
             requestBody.put("max_tokens", 2000);
             requestBody.put("messages", List.of(
                 Map.of("role", "user", "content", prompt)

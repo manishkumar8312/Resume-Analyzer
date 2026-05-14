@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -61,48 +62,49 @@ public class ResumeService {
             matchPercentage
         );
 
-        System.out.println("Starting AI review generation...");
+        // Save basic results immediately
+        Resume savedResume = resumeRepository.save(resume);
         
+        // Start AI analysis asynchronously
         if (groqService != null) {
-            try {
-                // Run AI analysis concurrently to save time
-                CompletableFuture<String> reviewFuture = CompletableFuture.supplyAsync(() -> 
-                    groqService.analyzeResume(text, jobDescription));
-                
-                CompletableFuture<String> atsFuture = CompletableFuture.supplyAsync(() -> 
-                    groqService.getAtsAnalysis(text, jobDescription));
-                
-                CompletableFuture<String> careerFuture = CompletableFuture.supplyAsync(() -> 
-                    groqService.getCareerAdvice(text, jobDescription));
-
-                // Wait for all to complete with a timeout (e.g., 30 seconds)
-                CompletableFuture.allOf(reviewFuture, atsFuture, careerFuture)
-                    .orTimeout(30, TimeUnit.SECONDS)
-                    .join();
-
-                String aiReview = reviewFuture.get();
-                String atsAnalysis = atsFuture.get();
-                String careerAdvice = careerFuture.get();
-
-                if (aiReview != null) {
-                    resume.setAiReview(aiReview);
-                }
-                if (atsAnalysis != null) {
-                    resume.setAtsAnalysis(atsAnalysis);
-                }
-                if (careerAdvice != null) {
-                    resume.setCareerAdvice(careerAdvice);
-                }
-
-                System.out.println("Concurrent AI analysis completed successfully");
-
-            } catch (Exception e) {
-                System.err.println("Error during concurrent AI analysis: " + e.getMessage());
-                e.printStackTrace();
-            }
+            performAsyncAiAnalysis(savedResume, text, jobDescription);
         }
         
-        return resumeRepository.save(resume);
+        return savedResume;
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    public void performAsyncAiAnalysis(Resume resume, String text, String jobDescription) {
+        try {
+            System.out.println("Starting asynchronous AI analysis for resume ID: " + resume.getId());
+            Map<String, String> analysisResults = groqService.getComprehensiveAnalysis(text, jobDescription);
+            
+            if (analysisResults != null && !analysisResults.containsKey("error")) {
+                resume.setAiReview(analysisResults.get("aiReview"));
+                resume.setAtsAnalysis(analysisResults.get("atsAnalysis"));
+                resume.setCareerAdvice(analysisResults.get("careerAdvice"));
+                System.out.println("Asynchronous AI analysis completed for resume ID: " + resume.getId());
+            } else {
+                String error = analysisResults != null ? analysisResults.get("error") : "Unknown error";
+                System.err.println("AI analysis failed: " + error + ". Falling back to local analysis.");
+                
+                // Fallback to local analysis so the user gets something
+                resume.setAiReview(groqService.generateLocalAnalysis(text, jobDescription, "AI Review (Fallback)"));
+                resume.setAtsAnalysis(groqService.generateLocalAnalysis(text, jobDescription, "ATS Analysis (Fallback)"));
+                resume.setCareerAdvice(groqService.generateLocalAnalysis(text, jobDescription, "Career Advice (Fallback)"));
+            }
+            
+            resumeRepository.save(resume);
+        } catch (Exception e) {
+            System.err.println("Error during async AI analysis: " + e.getMessage());
+            // Final fallback on catastrophic error
+            try {
+                resume.setAiReview("AI analysis is currently unavailable. Please try again later.");
+                resumeRepository.save(resume);
+            } catch (Exception se) {
+                System.err.println("Could not even save error status: " + se.getMessage());
+            }
+        }
     }
 
     public List<Resume> getAnalysisHistory() {

@@ -30,7 +30,7 @@ const UploadForm = ({ onAnalysisComplete, onFileSelect }) => {
           }
           return prev + 1;
         });
-      }, 2500);
+      }, 1200);
       return () => clearInterval(interval);
     } else {
       setCurrentStep(0);

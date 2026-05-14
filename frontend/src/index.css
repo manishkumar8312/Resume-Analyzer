@@ -1024,3 +1024,34 @@ body {
     font-size: 1.5rem;
   }
 }
+/* -----------------------------------------------
+   AI LOADING PLACEHOLDER
+   ----------------------------------------------- */
+.ai-loading-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+}
+
+.ai-loading-placeholder .pulse-icon {
+  font-size: 3rem;
+  color: var(--accent-blue);
+  animation: pulse-dot 2s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.ai-loading-placeholder p {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.ai-loading-placeholder .small {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
