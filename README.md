@@ -7,7 +7,9 @@
 ![Docker](https://img.shields.io/badge/Containerized-Docker-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-AI-powered resume analysis platform designed to evaluate resumes for ATS compatibility, skill relevance, and career insights using modern full-stack and DevOps technologies.
+AI-powered resume analysis platform designed to evaluate resumes for ATS compatibility, skill relevance, and career insights.
+
+**[Live Demo](https://resume-analyzer-1-4bhm.onrender.com)** (Backend on Render)
 
 ---
 
@@ -210,19 +212,11 @@ The project includes:
 
 ### Frontend
 
-Deploy using:
-
-* Vercel
-* Netlify
+Deployed using **Vercel**. The frontend is configured with a reverse proxy (`vercel.json`) to communicate with the Render backend securely.
 
 ### Backend
 
-Deploy using:
-
-* Render
-* Railway
-* AWS
-* Kubernetes cluster
+Deployed using **Render**. The API is available at `https://resume-analyzer-1-4bhm.onrender.com/api`.
 
 ---
 
