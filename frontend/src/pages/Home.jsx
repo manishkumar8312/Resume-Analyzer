@@ -50,7 +50,7 @@ const Home = () => {
               </div>
               <div className="feature-card">
                 <FiCheckSquare className="feature-icon" />
-                <div className="feature-title">ATS Compatibility</div>
+                <div className="feature-title">ATS Compatibility Tracker</div>
                 <div className="feature-desc">
                   AI-driven scoring for Applicant Tracking Systems with keyword optimization tips
                 </div>
